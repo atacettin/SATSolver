@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
+import src.Sudoku;
 
 import java.io.File;
 import java.io.FileNotFoundException;

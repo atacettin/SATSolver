@@ -20,7 +20,7 @@ class Solver {
         /**
          * Tries to reduce the domain of the variables associated to this constraint, using inference
          */
-        abstract void infer(/* you can add params */);
+        abstract Variable[] infer(/* you can add params */Variable[] vars);
     }
 
     // Example implementation of the Constraint interface.
@@ -28,27 +28,27 @@ class Solver {
     //
     // This particular constraint will most likely not be very useful to you...
     // Remove it and design a few constraints that *can* help you!
-    static abstract class BetweenFiveAndTenConstraint {
-        Variable var;
-
-        public BetweenFiveAndTenConstraint(Variable var) {
-            this.var = var;
-        }
-
-        void infer() {
-            List<Integer> newDomain = new LinkedList<>();
-
-            for (Integer x : this.var.domain) {
-                if (5 < x && x < 10)
-                    newDomain.add(x);
-            }
-
-            this.var.domain = newDomain;
-        }
-    }
+//    static abstract class BetweenFiveAndTenConstraint {
+//        Variable var;
+//
+//        public BetweenFiveAndTenConstraint(Variable var) {
+//            this.var = var;
+//        }
+//
+//        Variable[] infer() {
+//            List<Integer> newDomain = new LinkedList<>();
+//
+//            for (Integer x : this.var.domain) {
+//                if (5 < x && x < 10)
+//                    newDomain.add(x);
+//            }
+//
+//            this.var.domain = newDomain;
+//        }
+//    }
 
     Variable[] variables;
-    Constraint[] constraints;
+    LinkedList<Constraint> constraints;
     List<int[]> solutions;
     // you can add more attributes
 
@@ -59,7 +59,10 @@ class Solver {
      */
     public Solver(Variable[] variables, Constraint[] constraints) {
         this.variables = variables;
-        this.constraints = constraints;
+        this.constraints = new LinkedList<>();
+        for(Constraint constraint : constraints){
+            this.constraints.add(constraint);
+        }
 
         solutions = new LinkedList<>();
     }
@@ -68,8 +71,8 @@ class Solver {
      * Searches for one solution that satisfies the constraints.
      * @return The solution if it exists, else null
      */
-    int[] findOneSolution() {
-        solve(false);
+    int[] findOneSolution(int depth) {
+        solve(false, depth);
 
         return !solutions.isEmpty() ? solutions.get(0) : null;
     }
@@ -78,8 +81,8 @@ class Solver {
      * Searches for all solutions that satisfy the constraints.
      * @return The solution if it exists, else null
      */
-    List<int[]> findAllSolutions() {
-        solve(true);
+    List<int[]> findAllSolutions(int depth) {
+        solve(true, depth);
         return solutions;
     }
 
@@ -87,17 +90,58 @@ class Solver {
      * Main method for solving the problem.
      * @param findAllSolutions Whether the solver should return just one solution, or all solutions
      */
-    void solve(boolean findAllSolutions) {
+    void solve(boolean findAllSolutions, int depth) {
         // here you can do any preprocessing you might want to do before diving into the search
-
-        search(findAllSolutions /* you can add more params */);
+        List<Integer> choice = new ArrayList<>();
+        search(findAllSolutions, 0, choice, depth);
     }
 
     /**
      * Solves the problem using search and inference.
      */
-    void search(boolean findAllSolutions /* you can add more params */) {
+    void search(boolean findAllSolutions, int level, List<Integer> choice, int depth) {
         // TODO: implement search using search and inference
-        //
+        Variable[] vars = copy(this.variables);
+        for(Constraint constraint : constraints){
+            vars = constraint.infer(vars);
+        }
+        for(int i : vars[level].domain){
+            choice.add(i);
+            if(choice.size()==depth) {
+                solutions.add(choice.stream().mapToInt(x -> x).toArray());
+                if (findAllSolutions) {
+                    continue;
+                } else {
+                    return;
+                }
+            }
+            constraints.push(new ValueConstraint(i, level));
+            search(findAllSolutions, level + 1, choice, depth);
+            constraints.pop();
+            choice.remove(choice.size()-1);
+        }
+        return;
+    }
+
+    Variable[] copy(Variable[] variables){
+        return variables;
+    }
+    static class ValueConstraint extends Constraint{
+        int value;
+        int level;
+
+        public ValueConstraint(int value, int level) {
+            this.value = value;
+            this.level = level;
+        }
+
+        @Override
+        Variable[] infer(Variable[] vars) {
+            List<Integer> domain = vars[level].domain;
+            for (int i : vars[level].domain) {
+                if (i != value) domain.remove(i);
+            }
+            return vars;
+        }
     }
 }
