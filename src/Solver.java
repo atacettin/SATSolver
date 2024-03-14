@@ -1,3 +1,5 @@
+package src;
+
 import java.util.*;
 
 class Solver {
@@ -78,7 +80,6 @@ class Solver {
      */
     List<int[]> findAllSolutions() {
         solve(true);
-
         return solutions;
     }
 
@@ -97,5 +98,6 @@ class Solver {
      */
     void search(boolean findAllSolutions /* you can add more params */) {
         // TODO: implement search using search and inference
+        //
     }
 }
