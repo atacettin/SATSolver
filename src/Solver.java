@@ -110,6 +110,7 @@ class Solver {
             if(choice.size()==depth) {
                 solutions.add(choice.stream().mapToInt(x -> x).toArray());
                 if (findAllSolutions) {
+                    choice.remove(choice.size()-1);
                     continue;
                 } else {
                     return;
@@ -124,7 +125,15 @@ class Solver {
     }
 
     Variable[] copy(Variable[] variables){
-        return variables;
+        Variable[] newCopy = new Variable[variables.length];
+        int i = 0;
+        for(Variable var : variables){
+            List<Integer> domain = new ArrayList<>(var.domain);
+            Variable newVar = new Variable(domain);
+            newCopy[i] = newVar;
+            i++;
+        }
+        return newCopy;
     }
     static class ValueConstraint extends Constraint{
         int value;
@@ -137,9 +146,10 @@ class Solver {
 
         @Override
         Variable[] infer(Variable[] vars) {
-            List<Integer> domain = vars[level].domain;
-            for (int i : vars[level].domain) {
-                if (i != value) domain.remove(i);
+            List<Integer> domain = List.copyOf(vars[level].domain);
+
+            for (int i : domain) {
+                if (i != value) vars[level].domain.remove(i);
             }
             return vars;
         }

@@ -23,7 +23,7 @@ public class NQueens {
 
         // Use solver
         Solver solver = new Solver(variablesArray, constraintsArray);
-        List<int[]> result = solver.findAllSolutions();
+        List<int[]> result = solver.findAllSolutions(0);
 
         // TODO: use result to construct answer
         return -1;

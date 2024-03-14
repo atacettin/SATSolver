@@ -8,25 +8,30 @@ public class StandardCombinatorics {
      */
     public static List<String> getBinaryStrings(int n) {
         // Initialize lists for variables and constraints
-        List<Solver.Variable> variables = new ArrayList<>();
-        List<Solver.Constraint> constraints = new ArrayList<>();
+        Solver.Constraint[] constraints = new Solver.Constraint[0];
 
-        // TODO: add your variables
-
-        // TODO: add your constraints
-
-        // Convert to arrays
-        Solver.Variable[] variablesArray = new Solver.Variable[variables.size()];
-        variablesArray = variables.toArray(variablesArray);
-        Solver.Constraint[] constraintsArray = new Solver.Constraint[constraints.size()];
-        constraintsArray = constraints.toArray(constraintsArray);
+        Solver.Variable[] variables = new Solver.Variable[n];
+        for(int i = 0; i < n; i++){
+            List<Integer> domain = new ArrayList<>();
+            domain.add(0);
+            domain.add(1);
+            variables[i] = new Solver.Variable(domain);
+        }
 
         // Use solver
-        Solver solver = new Solver(variablesArray, constraintsArray);
-        List<int[]> result = solver.findAllSolutions();
+        Solver solver = new Solver(variables, constraints);
+        List<int[]> result = solver.findAllSolutions(n);
 
-        // TODO: use result to construct answer
-        return new ArrayList<>();
+        List<String> theActualResult = new ArrayList<>();
+        for(int[] entry : result){
+            StringBuilder sb = new StringBuilder();
+            for (int num : entry) {
+                sb.append(num);
+            }
+            theActualResult.add(sb.toString());
+        }
+
+        return theActualResult;
     }
 
     /**
@@ -49,7 +54,7 @@ public class StandardCombinatorics {
 
         // Use solver
         Solver solver = new Solver(variablesArray, constraintsArray);
-        List<int[]> result = solver.findAllSolutions();
+        List<int[]> result = solver.findAllSolutions(n);
 
         // TODO: use result to construct answer
         return new ArrayList<>();
@@ -75,7 +80,7 @@ public class StandardCombinatorics {
 
         // Use solver
         Solver solver = new Solver(variablesArray, constraintsArray);
-        List<int[]> result = solver.findAllSolutions();
+        List<int[]> result = solver.findAllSolutions(n);
 
         // TODO: use result to construct answer
         return new ArrayList<>();
@@ -101,7 +106,7 @@ public class StandardCombinatorics {
 
         // Use solver
         Solver solver = new Solver(variablesArray, constraintsArray);
-        List<int[]> result = solver.findAllSolutions();
+        List<int[]> result = solver.findAllSolutions(n);
 
         // TODO: use result to construct answer
         return new ArrayList<>();
@@ -127,7 +132,7 @@ public class StandardCombinatorics {
 
         // Use solver
         Solver solver = new Solver(variablesArray, constraintsArray);
-        List<int[]> result = solver.findAllSolutions();
+        List<int[]> result = solver.findAllSolutions(n);
 
         // TODO: use result to construct answer
         return new ArrayList<>();

@@ -1,3 +1,5 @@
+package test;
+
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 import src.StandardCombinatorics;
