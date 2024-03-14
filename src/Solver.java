@@ -93,15 +93,15 @@ class Solver {
     void solve(boolean findAllSolutions, int depth) {
         // here you can do any preprocessing you might want to do before diving into the search
         List<Integer> choice = new ArrayList<>();
-        search(findAllSolutions, 0, choice, depth);
+        search(findAllSolutions, 0, choice, depth, variables);
     }
 
     /**
      * Solves the problem using search and inference.
      */
-    void search(boolean findAllSolutions, int level, List<Integer> choice, int depth) {
+    void search(boolean findAllSolutions, int level, List<Integer> choice, int depth, Variable[] variables) {
         // TODO: implement search using search and inference
-        Variable[] vars = copy(this.variables);
+        Variable[] vars = copy(variables);
         for(Constraint constraint : constraints){
             vars = constraint.infer(vars);
         }
@@ -117,7 +117,7 @@ class Solver {
                 }
             }
             constraints.push(new ValueConstraint(i, level));
-            search(findAllSolutions, level + 1, choice, depth);
+            search(findAllSolutions, level + 1, choice, depth, vars);
             constraints.pop();
             choice.remove(choice.size()-1);
         }
