@@ -2,7 +2,6 @@ package src;
 
 import java.util.*;
 
-import static src.NQueens.visual;
 
 public class NQueens {
     /**
@@ -17,7 +16,7 @@ public class NQueens {
 
         for(int i = 0;i<n;i++){
             List<Integer> domain = new ArrayList<>();
-            for(int j = 0;j<n*n;j++){
+            for(int j = 0;j<n;j++){
                 domain.add(j);
             }
             variables.add(new Solver.Variable(domain));
@@ -25,8 +24,9 @@ public class NQueens {
 
 
         // TODO: add your constraints
-        constraints.add(new QueenConstraint(n));
-        constraints.add(new SymmetryConstraint(n));
+        constraints.add(new RowConstraint(n));
+        constraints.add(new DiagonalConstraint(n));
+        //constraints.add(new SymmetryConstraint(n));
 
         // Convert to arrays
         Solver.Variable[] variablesArray = new Solver.Variable[variables.size()];
@@ -37,34 +37,17 @@ public class NQueens {
         // Use solver
         Solver solver = new Solver(variablesArray, constraintsArray);
         List<int[]> result = solver.findAllSolutions(n);
-        for(int[] res : result){
-            NQueens.visual(res,n);
-        }
+
+        System.out.println();
+        System.out.println(result.size());
         // TODO: use result to construct answer
         return -1;
     }
 
-    static void visual(int[] result, int n){
-//        for(int i = 0; i<n;i++){
-//            for (int j =0;j<n;j++){
-//                System.out.println(j + n*i);
-////                System.out.print(result[j+n*i]+" ");
-//            }
-//            System.out.println("");
-//        }
-        System.out.println();
-        System.out.println("Result:");
-        for(int i = 0; i < result.length; i++){
-            System.out.print(result[i] + " ");
-            if(i > 0 && i % n == 0){
-                System.out.println();
-            }
-        }
-    }
 
-    static class QueenConstraint extends Solver.Constraint{
+    static class RowConstraint extends Solver.Constraint{
         int n;
-        public QueenConstraint(int n) {
+        public RowConstraint(int n) {
             this.n = n;
         }
 
@@ -72,17 +55,50 @@ public class NQueens {
         Solver.Variable[] infer(Solver.Variable[] vars) {
             for(Solver.Variable var : vars){
                 if(var.picked){
-                    int a = var.domain.get(0) % n;
-                    int b = var.domain.get(0) / n;
+                    int value = var.domain.get(0);
                     for(Solver.Variable var2 : vars){
-                        for(int i=0; i<n;i++){
-                            var2.domain.remove(a + n*i);
-                            var2.domain.remove(i + n*b);
-                            int j1 = b - a + i;
-                            int j2 = b + a - i;
-                            var2.domain.remove(Integer.valueOf(i + n*j1));
-                            var2.domain.remove(Integer.valueOf(i + n*j2));
+                        if(!var2.picked){
+                            var2.domain.remove(Integer.valueOf(value));
                         }
+//                        for(int i=0; i<n;i++){
+//                            var2.domain.remove(Integer.valueOf(a + n*i));
+//                            var2.domain.remove(Integer.valueOf(i + n*b));
+//                            int j1 = b - a + i;
+//                            int j2 = b + a - i;
+//                            var2.domain.remove(Integer.valueOf(i + n*j1));
+//                            var2.domain.remove(Integer.valueOf(i + n*j2));
+                        }
+                    }
+                }
+            return vars;
+        }
+    }
+
+    static class DiagonalConstraint extends Solver.Constraint{
+        int n;
+        public DiagonalConstraint(int n) {
+            this.n = n;
+        }
+
+        @Override
+        Solver.Variable[] infer(Solver.Variable[] vars) {
+            for(int j=0;j<vars.length;j++){
+                Solver.Variable var=vars[j];
+                if(var.picked){
+                    int a = j;
+                    int b = var.domain.get(0);
+                    for(int k=0;k<vars.length;k++){
+                        if(!vars[k].picked){
+                            vars[k].domain.remove(Integer.valueOf(b - a + k));
+                            vars[k].domain.remove(Integer.valueOf(b + a - k));
+                        }
+//                        for(int i=0; i<n;i++){
+//                            var2.domain.remove(Integer.valueOf(a + n*i));
+//                            var2.domain.remove(Integer.valueOf(i + n*b));
+//                            int j1 = b - a + i;
+//                            int j2 = b + a - i;
+//                            var2.domain.remove(Integer.valueOf(i + n*j1));
+//                            var2.domain.remove(Integer.valueOf(i + n*j2));
                     }
                 }
             }
@@ -102,10 +118,10 @@ public class NQueens {
         Solver.Variable[] infer(Solver.Variable[] vars) {
             if(isFirst){
                 isFirst = false;
-                int width = n / 2 + (n % 2);
+                int width = n / 2;
                 for (int a = 0; a < width; a++) {
                     for (int b = 0; b < n; b++) {
-                        vars[0].domain.remove(b + a * n);
+                        vars[0].domain.remove(Integer.valueOf(b + a * n));
                     }
                 }
                 return vars;

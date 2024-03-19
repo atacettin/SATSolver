@@ -111,6 +111,7 @@ class Solver {
         for(Variable var : variables){
             List<Integer> domain = new ArrayList<>(var.domain);
             Variable newVar = new Variable(domain);
+            if(var.picked) newVar.picked=true;
             newCopy[i] = newVar;
             i++;
         }
