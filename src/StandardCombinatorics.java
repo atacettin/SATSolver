@@ -1,6 +1,8 @@
 package src;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class StandardCombinatorics {
     /**
@@ -42,9 +44,16 @@ public class StandardCombinatorics {
         List<Solver.Variable> variables = new ArrayList<>();
         List<Solver.Constraint> constraints = new ArrayList<>();
 
-        // TODO: add your variables
+        // variables
+        List<Integer> domain = IntStream.range(1,n+1).boxed().collect(Collectors.toList());
+        System.out.println(domain);
+        for(int i = 0; i < k; i++){
+            variables.add(new Solver.Variable(new ArrayList<>(domain)));
+        }
 
-        // TODO: add your constraints
+        // constraints
+        constraints.add(new Solver.OrderingConstraint());
+        constraints.add(new Solver.UniquenessConstraint());
 
         // Convert to arrays
         Solver.Variable[] variablesArray = new Solver.Variable[variables.size()];
@@ -54,10 +63,9 @@ public class StandardCombinatorics {
 
         // Use solver
         Solver solver = new Solver(variablesArray, constraintsArray);
-        List<int[]> result = solver.findAllSolutions(n);
+        List<int[]> result = solver.findAllSolutions(k);
 
-        // TODO: use result to construct answer
-        return new ArrayList<>();
+        return result;
     }
 
     /**
@@ -68,9 +76,15 @@ public class StandardCombinatorics {
         List<Solver.Variable> variables = new ArrayList<>();
         List<Solver.Constraint> constraints = new ArrayList<>();
 
-        // TODO: add your variables
+        // variables
+        List<Integer> domain = IntStream.range(1,n+1).boxed().collect(Collectors.toList());
+        System.out.println(domain);
+        for(int i = 0; i < k; i++){
+            variables.add(new Solver.Variable(new ArrayList<>(domain)));
+        }
 
-        // TODO: add your constraints
+        // constraints
+        constraints.add(new Solver.OrderingConstraint());
 
         // Convert to arrays
         Solver.Variable[] variablesArray = new Solver.Variable[variables.size()];
@@ -80,10 +94,9 @@ public class StandardCombinatorics {
 
         // Use solver
         Solver solver = new Solver(variablesArray, constraintsArray);
-        List<int[]> result = solver.findAllSolutions(n);
+        List<int[]> result = solver.findAllSolutions(k);
 
-        // TODO: use result to construct answer
-        return new ArrayList<>();
+        return result;
     }
 
     /**
@@ -94,9 +107,13 @@ public class StandardCombinatorics {
         List<Solver.Variable> variables = new ArrayList<>();
         List<Solver.Constraint> constraints = new ArrayList<>();
 
-        // TODO: add your variables
-
-        // TODO: add your constraints
+        // variables
+        List<Integer> domain = new ArrayList<>();
+        domain.add(0);
+        domain.add(1);
+        for(int i = 0; i < n; i++){
+            variables.add(new Solver.Variable(new ArrayList<>(domain)));
+        }
 
         // Convert to arrays
         Solver.Variable[] variablesArray = new Solver.Variable[variables.size()];
@@ -107,9 +124,23 @@ public class StandardCombinatorics {
         // Use solver
         Solver solver = new Solver(variablesArray, constraintsArray);
         List<int[]> result = solver.findAllSolutions(n);
+        List<int[]> newResult = new ArrayList<>();
+        for(int[] res : result){
+            int[] idx = IntStream.range(1, res.length + 1)
+                    .filter(x -> res[x-1] == 1)
+                    .toArray();
+            newResult.add(idx);
+//            for(int i : idx){
+//                System.out.print(i);
+//            }
+//            System.out.print(" ");
+//            for(int i : res){
+//                System.out.print(i);
+//            }
+//            System.out.println();
+        }
 
-        // TODO: use result to construct answer
-        return new ArrayList<>();
+        return newResult;
     }
 
     /**
@@ -120,9 +151,14 @@ public class StandardCombinatorics {
         List<Solver.Variable> variables = new ArrayList<>();
         List<Solver.Constraint> constraints = new ArrayList<>();
 
-        // TODO: add your variables
+        // variables
+        List<Integer> domain = IntStream.range(1,n+1).boxed().collect(Collectors.toList());
+        for(int i = 0; i < n; i++){
+            variables.add(new Solver.Variable(new ArrayList<>(domain)));
+        }
 
-        // TODO: add your constraints
+        // constraints
+        constraints.add(new Solver.UniquenessConstraint());
 
         // Convert to arrays
         Solver.Variable[] variablesArray = new Solver.Variable[variables.size()];
@@ -134,7 +170,6 @@ public class StandardCombinatorics {
         Solver solver = new Solver(variablesArray, constraintsArray);
         List<int[]> result = solver.findAllSolutions(n);
 
-        // TODO: use result to construct answer
-        return new ArrayList<>();
+        return result;
     }
 }
