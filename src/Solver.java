@@ -5,6 +5,7 @@ import java.util.*;
 class Solver {
     static class Variable {
         List<Integer> domain;
+        boolean picked;
         // you can add more attributes
 
         /**
@@ -13,6 +14,7 @@ class Solver {
          */
         public Variable(List<Integer> domain) {
             this.domain = domain;
+            this.picked = false;
         }
     }
 
@@ -85,11 +87,13 @@ class Solver {
         for(int i : vars[level].domain){
             choice[length] = i;
             length++;
+            vars[level].picked=true;
             vars[level].domain =  new ArrayList<>(List.of(i));
             if(length==depth) {
                 solutions.add(choice.clone());
                 if (findAllSolutions) {
                     length--;
+                    vars[level].picked=false;
                     continue;
                 } else {
                     return;
@@ -97,6 +101,7 @@ class Solver {
             }
             search(findAllSolutions, level + 1, choice, length, depth, vars);
             length--;
+            vars[level].picked=false;
         }
     }
 
