@@ -23,29 +23,6 @@ class Solver {
         abstract Variable[] infer(/* you can add params */Variable[] vars);
     }
 
-    // Example implementation of the Constraint interface.
-    // It enforces that for given variable X, it holds that 5 < X < 10.
-    //
-    // This particular constraint will most likely not be very useful to you...
-    // Remove it and design a few constraints that *can* help you!
-//    static abstract class BetweenFiveAndTenConstraint {
-//        Variable var;
-//
-//        public BetweenFiveAndTenConstraint(Variable var) {
-//            this.var = var;
-//        }
-//
-//        Variable[] infer() {
-//            List<Integer> newDomain = new LinkedList<>();
-//
-//            for (Integer x : this.var.domain) {
-//                if (5 < x && x < 10)
-//                    newDomain.add(x);
-//            }
-//
-//            this.var.domain = newDomain;
-//        }
-//    }
 
     Variable[] variables;
     LinkedList<Constraint> constraints;
@@ -92,36 +69,35 @@ class Solver {
      */
     void solve(boolean findAllSolutions, int depth) {
         // here you can do any preprocessing you might want to do before diving into the search
-        List<Integer> choice = new ArrayList<>();
-        search(findAllSolutions, 0, choice, depth, variables);
+        int[] choice = new int[variables.length];
+        int length = 0;
+        search(findAllSolutions, 0, choice, length, depth, variables);
     }
 
     /**
      * Solves the problem using search and inference.
      */
-    void search(boolean findAllSolutions, int level, List<Integer> choice, int depth, Variable[] variables) {
-        // TODO: implement search using search and inference
+    void search(boolean findAllSolutions, int level, int[] choice, int length, int depth, Variable[] variables) {
         Variable[] vars = copy(variables);
         for(Constraint constraint : constraints){
             vars = constraint.infer(vars);
         }
         for(int i : vars[level].domain){
-            choice.add(i);
-            if(choice.size()==depth) {
-                solutions.add(choice.stream().mapToInt(x -> x).toArray());
+            choice[length] = i;
+            length++;
+            vars[level].domain =  new ArrayList<>(List.of(i));
+            if(length==depth) {
+                solutions.add(choice.clone());
                 if (findAllSolutions) {
-                    choice.remove(choice.size()-1);
+                    length--;
                     continue;
                 } else {
                     return;
                 }
             }
-            constraints.push(new ValueConstraint(i, level));
-            search(findAllSolutions, level + 1, choice, depth, vars);
-            constraints.pop();
-            choice.remove(choice.size()-1);
+            search(findAllSolutions, level + 1, choice, length, depth, vars);
+            length--;
         }
-        return;
     }
 
     Variable[] copy(Variable[] variables){
@@ -135,21 +111,49 @@ class Solver {
         }
         return newCopy;
     }
-    static class ValueConstraint extends Constraint{
-        int value;
-        int level;
+    static class UniquenessConstraint extends Constraint{
 
-        public ValueConstraint(int value, int level) {
-            this.value = value;
-            this.level = level;
-        }
+        public UniquenessConstraint() {}
 
         @Override
         Variable[] infer(Variable[] vars) {
-            List<Integer> domain = List.copyOf(vars[level].domain);
+            // for each variable, if it has a domain of size 1
+            //    for each other variable, remove that value from the domain
+            for(Variable var : vars){
+                if(var.domain.size() != 1){ continue; } // only matters for variables that are picked
+                int val = var.domain.get(0);
+                if(val == -1){continue;}
+                for(Variable other : vars) {
+                    if(var != other){
+                        List<Integer> oDomain = other.domain;
+                        for(int i = 0; i < oDomain.size(); i++){
+                            if(oDomain.get(i) > val){
+                                break;
+                            }
+                            if(oDomain.get(i) == val){
+                                oDomain.remove(i);
+                                break;
+                            }
 
-            for (int i : domain) {
-                if (i != value) vars[level].domain.remove(i);
+                        }
+//                        other.domain.removeIf(x -> x == val);
+                    }
+                }
+            }
+            return vars;
+        }
+    }
+
+    static class OrderingConstraint extends Constraint{
+        public OrderingConstraint(){}
+
+        @Override
+        Variable[] infer(Variable[] vars){
+            for(int i = 0; i < vars.length-1; i++){
+                if(!vars[i].domain.isEmpty()){
+                    int val = vars[i].domain.get(0);
+                    vars[i+1].domain.removeIf(x-> x<val);
+                }
             }
             return vars;
         }
