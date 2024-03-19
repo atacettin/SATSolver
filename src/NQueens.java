@@ -1,6 +1,7 @@
 package src;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class NQueens {
@@ -26,7 +27,7 @@ public class NQueens {
         // TODO: add your constraints
         constraints.add(new RowConstraint(n));
         constraints.add(new DiagonalConstraint(n));
-        //constraints.add(new SymmetryConstraint(n));
+        constraints.add(new SymmetryConstraint(n));
 
         // Convert to arrays
         Solver.Variable[] variablesArray = new Solver.Variable[variables.size()];
@@ -38,10 +39,12 @@ public class NQueens {
         Solver solver = new Solver(variablesArray, constraintsArray);
         List<int[]> result = solver.findAllSolutions(n);
 
-        System.out.println();
-        System.out.println(result.size());
         // TODO: use result to construct answer
-        return -1;
+        if(n%2==1){
+            return result.size();
+        }else {
+            return result.size()*2;
+        }
     }
 
 
@@ -108,21 +111,15 @@ public class NQueens {
 
     static class SymmetryConstraint extends Solver.Constraint{
         int n;
-        boolean isFirst;
         public SymmetryConstraint(int n) {
             this.n = n;
-            this.isFirst = true;
         }
 
         @Override
         Solver.Variable[] infer(Solver.Variable[] vars) {
-            if(isFirst){
-                isFirst = false;
-                int width = n / 2;
-                for (int a = 0; a < width; a++) {
-                    for (int b = 0; b < n; b++) {
-                        vars[0].domain.remove(Integer.valueOf(b + a * n));
-                    }
+            if(!vars[0].picked&&n%2==0){
+                for (int a = 0; a < n/2; a++) {
+                    vars[0].domain.remove(Integer.valueOf(a));
                 }
                 return vars;
             }else {
