@@ -36,7 +36,7 @@ public class NQueens {
 
         // Use solver
         Solver solver = new Solver(variablesArray, constraintsArray);
-        List<int[]> result = solver.findAllSolutions(0);
+        List<int[]> result = solver.findAllSolutions(n);
         for(int[] res : result){
             NQueens.visual(res,n);
         }
@@ -45,11 +45,20 @@ public class NQueens {
     }
 
     static void visual(int[] result, int n){
-        for(int i = 0; i<n;i++){
-            for (int j =0;j<n;j++){
-                System.out.print(result[j+n*i]+" ");
+//        for(int i = 0; i<n;i++){
+//            for (int j =0;j<n;j++){
+//                System.out.println(j + n*i);
+////                System.out.print(result[j+n*i]+" ");
+//            }
+//            System.out.println("");
+//        }
+        System.out.println();
+        System.out.println("Result:");
+        for(int i = 0; i < result.length; i++){
+            System.out.print(result[i] + " ");
+            if(i > 0 && i % n == 0){
+                System.out.println();
             }
-            System.out.println("");
         }
     }
 
@@ -93,7 +102,7 @@ public class NQueens {
         Solver.Variable[] infer(Solver.Variable[] vars) {
             if(isFirst){
                 isFirst = false;
-                int width = n / 2 + 1;
+                int width = n / 2 + (n % 2);
                 for (int a = 0; a < width; a++) {
                     for (int b = 0; b < n; b++) {
                         vars[0].domain.remove(b + a * n);
