@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class SudokuTest {
     @Test
     public void testSolve() {
-        String directoryPath = "./src/sudoku_instances/";
+        String directoryPath = "./src/sudoku_spare/";
         File folder = new File(directoryPath);
         File[] files = folder.listFiles();
 

@@ -163,4 +163,147 @@ class Solver {
             return vars;
         }
     }
+
+    static class UniqueRowConstraint extends Constraint{
+        int n;
+        public UniqueRowConstraint(int n){
+            this.n = n;
+        }
+
+        @Override
+        Variable[] infer(Variable[] vars){
+            for(int i = 0; i < n; i++){
+                for(int j = 0; j < n; j++){
+                    List<Integer> domain = vars[i*n+j].domain;
+                    if(domain.size() == 1){
+                        int val = domain.get(0);
+                        for (int k = 0; k < n; k++){
+                            if(k == j) continue;
+//                            vars[i*n+k].domain.removeIf(x->x==val);
+                            List<Integer> other = vars[i*n+k].domain;
+                            for(int l = 0; l < other.size(); l++){
+                                if(other.get(l) == val){
+                                    other.remove(l);
+                                    break;
+                                }
+                                else if(other.get(l) > val){
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else if(domain.isEmpty()){
+                        for(Variable var : vars){
+                            var.domain = new ArrayList<>(0);
+                        }
+                    }
+                }
+            }
+            return vars;
+        }
+    }
+
+    static class UniqueColConstraint extends Constraint{
+        int n;
+        public UniqueColConstraint(int n){
+            this.n = n;
+        }
+
+        @Override
+        Variable[] infer(Variable[] vars){
+            for(int j = 0; j < n; j++){
+                for(int i = 0; i < n; i++){
+                    List<Integer> domain = vars[i*n+j].domain;
+                    if(domain.size() == 1){
+                        int val = domain.get(0);
+                        for (int k = 0; k < n; k++){
+                            if(k == i) continue;
+//                            vars[k*n+j].domain.removeIf(x->x==val);
+                            List<Integer> other = vars[k*n+j].domain;
+                            for(int l = 0; l < other.size(); l++){
+                                if(other.get(l) == val){
+                                    other.remove(l);
+                                    break;
+                                }
+                                else if(other.get(l) > val){
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else if(domain.isEmpty()){
+                        for(Variable var : vars){
+                            var.domain = new ArrayList<>(0);
+                        }
+                    }
+                }
+            }
+            return vars;
+        }
+    }
+
+    static class UniqueBoxConstraint extends Constraint{
+        int n;
+        int boxLength;
+        int[][] boxes;
+        public UniqueBoxConstraint(int n){
+            this.n = n;
+            this.boxLength = (int) Math.sqrt(n);
+            this.boxes = new int[n][n];
+
+            int i = 0;
+            int j = 0;
+            int c2 = 0;
+            while(i + boxLength <=  n){
+                j = 0;
+                while(j + boxLength <= n){
+                    int[] box = new int[n];
+                    int c = 0;
+                    for(int a = i; a < i + boxLength; a++){
+                        for(int b = j; b < j + boxLength; b++){
+                            box[c] = (a*n+b);
+                            c++;
+                        }
+                    }
+                    boxes[c2] = box;
+                    c2++;
+                    j += boxLength;
+                }
+                i += boxLength;
+            }
+            System.out.println();
+        }
+
+        @Override
+        Variable[] infer(Variable[] vars){
+            for(int[] box : boxes){
+                for(int idx : box){
+                    List<Integer> domain = vars[idx].domain;
+                    if(domain.size() == 1){
+                        int val = domain.get(0);
+                        for (int idx2 : box){
+                            if(idx == idx2) continue;
+//                            vars[idx2].domain.removeIf(x->x==val);
+                            List<Integer> other = vars[idx2].domain;
+                            for(int l = 0; l < other.size(); l++){
+                                if(other.get(l) == val){
+                                    other.remove(l);
+                                    break;
+                                }
+                                else if(other.get(l) > val){
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else if(domain.isEmpty()){
+                        for(Variable var : vars){
+                            var.domain = new ArrayList<>(0);
+                        }
+                    }
+                }
+            }
+            return vars;
+        }
+    }
 }
